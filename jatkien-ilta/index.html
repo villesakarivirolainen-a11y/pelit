@@ -1,0 +1,616 @@
+<meta charset="utf-8" />
+<title>Jätkien Ilta</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&display=swap">
+
+<style>
+  :root {
+    --bg: #0A0A0A;
+    --card-bg: #161616;
+    --card-border: #33363A;
+    --card-border-warm: #6B5636;
+    --accent: #8C97A3;
+    --accent-light: #C4CBD2;
+    --text: #F5F5F5;
+    --text-secondary: #9A9A9A;
+    --gold: #9C8142;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Oswald', -apple-system, sans-serif;
+    font-weight: 400;
+  }
+
+  .wrap {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 480px;
+    margin: 0 auto;
+    min-height: 100vh;
+    padding: 40px 22px 50px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .stage { display: none; width: 100%; flex-direction: column; align-items: center; }
+  .stage.active { display: flex; }
+
+  h1.title {
+    font-family: 'Oswald', sans-serif;
+    font-weight: 700;
+    font-size: 26px;
+    margin: 0 0 12px;
+  }
+  .subtitle {
+    font-size: 15px;
+    color: var(--text-secondary);
+    margin: 0 0 16px;
+  }
+  .rules-toggle {
+    font-size: 13px;
+    color: var(--accent-light);
+    background: none;
+    border: none;
+    font-family: inherit;
+    cursor: pointer;
+    margin-bottom: 12px;
+    padding: 4px;
+  }
+  .rules-text {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.45;
+    margin: 0 0 24px;
+  }
+
+  .players-label {
+    font-size: 13px;
+    color: var(--text-secondary);
+    align-self: flex-start;
+    margin-bottom: 6px;
+  }
+  .player-row {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .player-input {
+    flex: 1;
+    border: 1px solid var(--card-border);
+    background: var(--card-bg);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-family: 'Oswald', sans-serif;
+    font-size: 15px;
+    color: var(--text);
+  }
+  .player-input::placeholder { color: #6b6b6b; }
+  .remove-player {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 18px;
+    cursor: pointer;
+    padding: 0 4px;
+  }
+  .add-player {
+    background: none;
+    border: none;
+    font-family: inherit;
+    font-size: 13px;
+    color: var(--accent-light);
+    cursor: pointer;
+    align-self: flex-start;
+    margin-bottom: 24px;
+    padding: 4px 0;
+  }
+
+  .btn {
+    font-family: 'Oswald', sans-serif;
+    font-weight: 700;
+    font-size: 17px;
+    background: transparent;
+    border: 1.5px solid var(--gold);
+    color: var(--gold);
+    border-radius: 14px;
+    padding: 16px 32px;
+    cursor: pointer;
+    width: 100%;
+  }
+  .btn:disabled { opacity: 0.4; cursor: default; }
+  .hint-small {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 10px;
+  }
+
+  .toggle-line {
+    font-size: 12px;
+    color: var(--text-secondary);
+    opacity: 0.6;
+    background: none;
+    border: none;
+    font-family: inherit;
+    cursor: pointer;
+    margin-top: 14px;
+  }
+
+  .signature {
+    font-style: italic;
+    font-size: 22px;
+    margin: 0 0 12px;
+    padding: 0 12px;
+  }
+  .signature-author {
+    font-size: 16px;
+    color: var(--gold);
+    margin: 0 0 32px;
+  }
+
+  .spinning-name {
+    font-family: 'Oswald', sans-serif;
+    font-weight: 700;
+    font-size: 34px;
+    margin-top: 12px;
+    min-height: 44px;
+  }
+
+  .current-player {
+    font-family: 'Oswald', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--accent-light);
+    margin-bottom: 12px;
+  }
+
+  .card {
+    width: 100%;
+    min-height: 320px;
+    background: var(--card-bg);
+    border: 1.5px solid var(--card-border-warm);
+    border-radius: 10px;
+    padding: 28px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    user-select: none;
+  }
+  .card-tap-left, .card-tap-right {
+    position: absolute;
+    top: 0; bottom: 0;
+    cursor: pointer;
+  }
+  .card-tap-left { left: 0; width: 35%; }
+  .card-tap-right { right: 0; width: 65%; }
+  .card-arrow {
+    position: absolute;
+    top: 0; bottom: 0;
+    display: flex;
+    align-items: center;
+    opacity: 0.65;
+    font-size: 20px;
+    color: var(--gold);
+    pointer-events: none;
+  }
+  .card-arrow.left { left: 6px; }
+  .card-arrow.right { right: 6px; }
+  .card-text {
+    font-family: 'Oswald', sans-serif;
+    font-weight: 600;
+    font-size: 24px;
+    line-height: 1.42;
+    position: relative;
+  }
+  .hint-toggle {
+    font-size: 14px;
+    color: var(--accent-light);
+    background: none;
+    border: none;
+    font-family: inherit;
+    cursor: pointer;
+    margin-top: 20px;
+    position: relative;
+  }
+  .helper-hint {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-top: 20px;
+    position: relative;
+  }
+
+  .card-controls {
+    display: flex;
+    align-items: center;
+    margin-top: 28px;
+    gap: 10px;
+  }
+  .card-controls button {
+    background: none;
+    border: none;
+    font-family: inherit;
+    font-size: 13px;
+    color: var(--text-secondary);
+    opacity: 0.7;
+    cursor: pointer;
+  }
+  .card-controls .dot { opacity: 0.5; }
+
+  .closing-message {
+    font-size: 17px;
+    line-height: 1.55;
+    margin: 0 0 20px;
+    white-space: pre-line;
+  }
+
+  footer {
+    margin-top: 30px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    opacity: 0.6;
+  }
+
+  /* Villen kuva etusivun himmeänä taustana, kuten sovelluksessa. */
+  .hero-bg {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background:
+      linear-gradient(to bottom, rgba(10,10,10,0.15) 0%, rgba(10,10,10,0.55) 55%, var(--bg) 100%),
+      url('hero.jpg') center top / cover no-repeat;
+    opacity: 0.55;
+    transition: opacity 0.3s ease;
+  }
+  body:not(.on-start) .hero-bg { opacity: 0; }
+  body:not(.on-start) .back-link { display: none; }
+
+  .back-link {
+    align-self: flex-start;
+    font-size: 13px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    margin-bottom: 18px;
+  }
+
+  footer a {
+    color: var(--gold);
+    text-decoration: none;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; } to { opacity: 1; }
+  }
+  .stage.active { animation: fadeIn 0.2s ease; }
+</style>
+
+<div class="hero-bg"></div>
+<div class="wrap">
+  <a class="back-link" href="../">← Kaikki pelit</a>
+
+  <div class="stage active" id="stage-start">
+    <h1 class="title">Jätkien Ilta</h1>
+    <p class="subtitle">Vähän enemmän kuin peli. Loppuosa selviää pelaamalla.</p>
+    <button class="rules-toggle" id="rules-toggle">Säännöt</button>
+    <p class="rules-text" id="rules-text" style="display:none;">Ennen jokaista kysymystä sovellus arpoo, kuka vastaa ensin. Muutkin saavat vastata samaan kysymykseen, jos haluavat. Peli on suunniteltu miehille, mutta sopii hyvin pelattavaksi myös sekaseurassa. Yksi sääntö vielä: kesken pelin ei saa katsoa puhelinta. Jos jää kiinni, muu porukka keksii rangaistuksen.</p>
+
+    <p class="players-label">Pelaajat</p>
+    <div id="player-rows"></div>
+    <button class="add-player" id="add-player">+ Lisää pelaaja</button>
+
+    <button class="btn" id="start-btn">Aloita peli</button>
+    <p class="hint-small" id="start-hint" style="display:none;">Kirjoita vähintään kaksi nimeä aloittaaksesi.</p>
+
+    <button class="toggle-line" id="random-toggle">Arvonta: päällä (koske vaihtaaksesi)</button>
+  </div>
+
+  <div class="stage" id="stage-intro">
+    <p class="signature">Älä jätä jotain asiaa tekemättä, vaikka sua pelottaisi. Tee se sitten, vaikka paskat housussa.</p>
+    <p class="signature-author">- Ville</p>
+    <button class="btn" id="intro-continue">Jatka</button>
+  </div>
+
+  <div class="stage" id="stage-spin">
+    <p class="subtitle">Kenen vuoro on?</p>
+    <p class="spinning-name" id="spinning-name"></p>
+  </div>
+
+  <div class="stage" id="stage-card">
+    <p class="current-player" id="current-player-label" style="display:none;"></p>
+    <div class="card" id="card">
+      <div class="card-tap-left" id="tap-left"></div>
+      <div class="card-tap-right" id="tap-right"></div>
+      <div class="card-arrow left" id="arrow-left" style="display:none;">&#8249;</div>
+      <div class="card-arrow right">&#8250;</div>
+      <p class="card-text" id="card-text"></p>
+      <button class="hint-toggle" id="hint-toggle" style="display:none;">Näytä vinkki</button>
+      <p class="helper-hint" id="helper-hint" style="display:none;"></p>
+    </div>
+    <div class="card-controls">
+      <button id="btn-skip">Ohita</button>
+      <span class="dot">·</span>
+      <button id="btn-stop">Lopeta</button>
+      <span class="dot">·</span>
+      <button id="btn-home">Alkuun</button>
+    </div>
+  </div>
+
+  <div class="stage" id="stage-end">
+    <p class="closing-message">Tää on miehen tekemä, joka on etsinyt suuntaa elämässä jo jonkin aikaa.
+
+Joka ei aina löydä oikeita sanoja.
+
+Jolla on sata ideaa, mutta moni niistä on jäänyt toteuttamatta. Tämä ei jäänyt.
+
+Joka tuntee ilot ja surut voimakkaasti.
+
+Joka toivoo, että tästä pelistä oli hyötyä edes yhdelle miehelle.
+
+Ja joka toivoo, että me puhuttaisiin avoimemmin, uskallettaisiin unelmoida ja mentäisiin myös kohti niitä unelmia. 💚</p>
+    <p class="signature-author">- Ville</p>
+    <button class="btn" id="replay-btn">Pelaa uudelleen</button>
+  </div>
+
+  <footer>Jätkien Ilta — Ville Virolainen · <a href="https://www.instagram.com/se.ville.virolainen/" target="_blank" rel="noopener">@se.ville.virolainen</a></footer>
+</div>
+
+<script>
+  const QUESTIONS = [{"text": "Milloin viimeksi itkit ja mistä syystä?", "hint": "Voit kertoa, jos haluat.", "intense": true}, {"text": "Mikä on suurin pelko, jota et ole kertonut kenellekään?", "hint": "Pienikin pelko käy."}, {"text": "Onko sinulla ihmissuhde, jonka haluaisit korjata? Mikä estää sinua ottamasta yhteyttä?", "hint": "Voi olla kaveri, sukulainen tai entinen kumppani."}, {"text": "Mistä asiasta olet eniten katunut, ettet sanonut ääneen ajoissa?", "hint": "Ei tarvitse olla iso asia."}, {"text": "Kuka on viimeksi sanonut sinulle olevansa ylpeä sinusta? Milloin se oli?", "hint": "Jos et muista, se on ihan ok vastaus."}, {"text": "Mikä on raskain taakka, jota kannat juuri nyt?", "hint": "Esim. raha, ihmissuhde, työ, terveys tai jonkun hoitaminen. Jos ei tunnu olevan mitään juuri nyt, sekin on ihan hyvä vastaus.", "intense": true}, {"text": "Jos vanhempasi olisivat tässä nyt, mitä haluaisit sanoa heille?", "hint": "Voi olla kiitos, anteeksipyyntö tai kysymys."}, {"text": "Mikä on paras neuvo, jonka olet joltakulta saanut?", "hint": "Ei tarvitse muistaa, kuka sen sanoi."}, {"text": "Anna vinkki teini-ikäiselle itsellesi.", "hint": "Mitä olisit kaivannut kuulla silloin?"}, {"text": "Kenelle et ole vielä antanut anteeksi, ja miksi?", "hint": "Voi olla joku muu tai sinä itse."}, {"text": "Mitä aikaa elämässäsi ikävöit ja miksi?", "hint": "Voi olla lapsuus, opiskeluaika tai joku muu jakso."}, {"text": "Mikä osa itsestäsi on vaikein hyväksyä?", "hint": "Voi olla ulkonäköön, luonteeseen tai menneisyyteen liittyvä asia."}, {"text": "Milloin viimeksi tunsit itsesi yksinäiseksi, vaikka ympärillä oli ihmisiä?", "hint": "Tämä on yleisempää kuin luulet."}, {"text": "Mitä toivoisit, että kaverisi kysyisivät sinulta useammin?", "hint": "Esim. miten oikeasti voit."}, {"text": "Mikä on suurin virhe, josta olet oppinut eniten?", "hint": "Virhe, joka lopulta opetti jotain arvokasta."}, {"text": "Kenen menettäminen pelottaisi sinua eniten?", "hint": "Voi olla perheenjäsen, kumppani tai läheinen ystävä."}, {"text": "Minkälainen lapsuus sinulla oli, ja oletko koskaan huomannut käyttäväsi sitä selityksenä johonkin?", "hint": "Esim. ajatus tyyliin \"olen tällainen koska...\", joka tulee mieleen usein.", "intense": true}, {"text": "Mitä olet oppinut itsestäsi parisuhteesta?", "hint": "Voi olla nykyinen tai jokin edellinen suhde. Esim. jokin toistuva tapa tai reaktio, jota et ole huomannut ennen."}, {"text": "Mikä on asia, jota et ole koskaan osannut sanoa rakkaalle ihmiselle, vaikka pitäisi?", "hint": "Voi olla esim. kehu, jota et ole osannut sanoa ääneen, tai jokin vaikeampi tunne."}, {"text": "Millainen mies haluaisit olla kumppanillesi?", "hint": "Esim. luotettava, läsnäoleva tai rohkea puhumaan."}, {"text": "Mitä tarvitset, jotta uskallat olla täysin oma itsesi jonkun kanssa?", "hint": "Voi olla luottamus, rento tunnelma tai jokin ihan muu."}, {"text": "Milloin viimeksi sanoit ääneen jollekin, että rakastat häntä?", "hint": "Voi olla kumppani, perhe tai kaveri."}, {"text": "Näytätkö tunteesi enemmän sanoilla vai teoilla?", "hint": "Voi olla molempia eri tilanteissa, mieti kumpi tulee luonnostaan."}, {"text": "Oletko tällä hetkellä tyytyväinen omaan kehoosi?", "hint": "Rehellinen vastaus vois olla hyvä."}, {"text": "Vertailetko itseäsi muihin somessa?", "hint": "Rehellinen vastaus riittää, ei tarvitse selitellä."}, {"text": "Mistä tunnistat, että päiväsi menee huonoon suuntaan pelkän asenteen takia?", "hint": "Mieti hetkeä, jolloin pieni harmi paisui mielessä isoksi asiaksi."}, {"text": "Mikä on pahin tapa, jonka tiedät vahingoittavan sinua, mutta et ole valmis luopumaan siitä?", "hint": "Voi olla tupakka, some, valvominen tai jokin muu."}, {"text": "Miten puhut itsellesi, kun epäonnistut, oikeasti?", "hint": "Oletko itsellesi ankarampi kuin olisit kaverillesi?"}, {"text": "Jos saisit muuttaa vain yhden elämäntapasi, minkä valitsisit?", "hint": "Voi liittyä uneen, liikuntaan, ruokaan tai johonkin muuhun."}, {"text": "Kun elämässä menee kaikki päin persettä, mitä teet silloin?", "hint": "Alatko käymään kuntosalilla vai teetkö töitä myös mielesi kanssa? Vai molemmat, vai ihan jotain muuta?"}, {"text": "Syötkö säännöllisesti ja hyvin, vai jääkö se helposti sivummalle?", "hint": "Ei tarvitse selitellä, mutta mieti."}, {"text": "Nyt saatte ottaa puhelimet esiin ja näyttäkää teidän ruutuajat.", "hint": "Kuka voitti?"}, {"text": "Raha vai rauha?", "hint": "Raha voi tuoda rauhaa, esim. ettei tarvitse murehtia laskuja. Mutta joskus rahan tavoittelu itsessään syö sen rauhan. Kumpi voittaa sinulla?"}, {"text": "Mitä opit itsestäsi viime vuonna, jota et tiennyt aiemmin?", "hint": "Voi liittyä siihen, miten reagoit paineeseen, ihmisiin tai omiin rajoihisi."}, {"text": "Milloin viimeksi opit jotain uutta pelkästä uteliaisuudesta?", "hint": "Voi olla taito, harrastus tai ihan mikä tahansa aihe joka kiinnosti."}, {"text": "Mikä ajattelutapa on muuttanut elämääsi eniten?", "hint": "Voi olla joku lause, joka jäi mieleen ja muutti tapaasi ajatella."}, {"text": "Jos saisit tunnin viikossa käyttää vain omaan kehittymiseen, mihin käyttäisit sen?", "hint": "Voi olla lukeminen, liikunta, opiskelu tai ihan mikä tahansa."}, {"text": "Mistä kirjasta, podcastista tai keskustelusta olet saanut eniten ajateltavaa viime aikoina?", "hint": "Voi olla myös elokuva, video tai jonkun sanoma lause."}, {"text": "Mitä haluaisit oppia?", "hint": "Voi olla taito, tapa tai ajattelutapa."}, {"text": "Miten käsittelet epäonnistumista, oikeasti?", "hint": "Vetäydytkö, suutut vai yrität heti uudestaan?"}, {"text": "Mikä on suurin este, joka jarruttaa sinua juuri nyt?", "hint": "Voi olla raha, aika, pelko tai joku muu."}, {"text": "Milloin viimeksi teit jotain, vaikka pelotti?", "hint": "Voi olla puheenvuoro, hyppy tai iso päätös."}, {"text": "Kenen asennetta elämässä ihailet eniten ja miksi?", "hint": "Voi olla tuttu ihminen tai joku etäämpää."}, {"text": "Mikä on kovin päätös, jonka olet joutunut tekemään?", "hint": "Voi liittyä ihmissuhteeseen, työhön tai johonkin isompaan elämänmuutokseen."}, {"text": "Mikä oikeasti estää sinua saavuttamasta sitä mitä haluat elämässä?", "hint": "Voi olla pelko, laiskuus, raha tai joku muu syy."}, {"text": "Mihin asiaan käytät eniten aikaa, vaikka tiedät, ettei se vie sinua eteenpäin?", "hint": "Voi olla puhelin, some, pleikkari tai jokin muu tapa tappaa aikaa."}, {"text": "Mikä on se asia, jonka tiedät, että pitäisi tehdä, mutta et ole vieläkään aloittanut?", "hint": "Mieti, mitä olet lykännyt pisimpään."}, {"text": "Jos lopettaisit yhden tekosyyn käytön tänään, minkä lopettaisit?", "hint": "Ruutuaika kertoo usein totuuden ajanpuutteesta. Toinen yleinen tekosyy on diagnoosi, esim. \"en pysty koska...\""}, {"text": "Kuka olisi se ihminen, jolta pyytäisit neuvoa, jos voisit kysyä keneltä tahansa maailmassa?", "hint": "Voi olla oikea, kuvitteellinen tai edesmennyt ihminen."}, {"text": "Miten motivoit itseäsi?", "hint": "Esim. kuntosalille meno, työprojekti tai jokin muu missä tarvitset puhtia."}, {"text": "Mistä asiasta sinulle tulee aina hyvä mieli?", "hint": "Esim. musiikki, luonto, aurinko tai joku muu pieni juttu.", "light": true}, {"text": "Millaisia fiiliksiä musiikki saa sinussa aikaan?", "hint": "Esim. rauha, energia tai muistot jostain tietystä ajasta elämässäsi.", "light": true}, {"text": "Mitä tekisit, jos et pelkäisi muiden mielipiteitä?", "hint": "Voi olla iso elämänmuutos tai ihan pieni asia, jota et vielä uskalla tehdä."}, {"text": "Oletko koskaan miettinyt, mitkä sinun elämänarvosi ovat, ja jos olet, niin mitkä ne ovat?", "hint": "Esim. rehellisyys, perhe, vapaus tai raha. Mieti myös missä järjestyksessä ne on sinulle, ja toimitko oikeasti niiden mukaan."}, {"text": "Miten haluat, että ihmiset muistavat sinut?", "hint": "Esim. auttavainen, luotettava, hauska, kohtelias tai täysin hullu tyyppi."}, {"text": "Oletko miettinyt, mitkä ovat sinun vahvuutesi?", "hint": "Esim. sitkeys, rehellisyys, vittuilu tai kyky ratkaista ongelmia."}, {"text": "Oletko miettinyt, mitkä ovat sinun heikkoutesi?", "hint": "Esim. kärsimättömyys, jääräpäisyys tai vaikeus pyytää apua."}, {"text": "Voiko epäonnistuminen olla lahja?", "hint": "Mieti jotain epäonnistumista, joka lopulta johti johonkin hyvään."}, {"text": "Mitä rohkeus tarkoittaa sinulle?", "hint": "Villen mielestä rohkeus on sitä, että tekee jotain vaikka pelottaa."}, {"text": "Teetkö tällä hetkellä elämässäsi sitä, mistä oikeasti tykkäät?", "hint": "Voi liittyä työhön, harrastuksiin tai ihmisiin, joiden kanssa vietät aikaa."}, {"text": "Katso ympärillesi juuri nyt, ketkä on kanssasi tässä pöydässä?", "hint": "Vievätkö he sinua eteenpäin?", "intense": true}, {"text": "Valitsetko mieluummin kivisemmän tien, joka kasvattaa sinua enemmän, vai helpomman tien?", "hint": "Esim. unelmien tavoittelu tai yrittäjyys, vai se tuttu ja turvallinen valinta?"}, {"text": "Mistä sinä haaveilet juuri nyt, ja oletko tehnyt mitään sen eteen?", "hint": "Voi olla iso elämänmuutos tai ihan pieni asia, jota et ole vielä uskaltanut aloittaa."}, {"text": "Mitä sana \"herrasmies\" tarkoittaa sinulle?", "hint": "Voi liittyä käytökseen, arvoihin tai tapaan kohdella muita."}, {"text": "Kuka on ollut sinulle esimerkki hyvistä tavoista?", "hint": "Voi olla isä, isoisä tai joku muu."}, {"text": "Milloin viimeksi autoit tuntematonta, ilman että kukaan pyysi?", "hint": "Pieni teko riittää."}, {"text": "Mitä tarkoittaa sinulle olla sanansa mittainen mies?", "hint": "Onko sulla mielessä tilanne, jossa joku ei pitänyt sanaansa sinulle?"}, {"text": "Millainen ele saa sinut aina vaikuttumaan toisesta ihmisestä?", "hint": "Voi olla esim. kohteliaisuus, avuliaisuus tai rehellisyys."}, {"text": "Mitä haluaisit opettaa nuoremmalle miehelle kunnioituksesta?", "hint": "Voi olla oma poika tai kuka tahansa nuorempi."}, {"text": "Millainen käytös miehessä saa sinut menettämään kunnioituksen häntä kohtaan?", "hint": "Voi olla esim. valehtelu, tekosyyt tai toisten kohtelu huonosti."}, {"text": "Milloin viimeksi kannoit vastuun virheestä, ilman että kukaan pakotti?", "hint": "Voi olla työssä, kotona tai kaveripiirissä tapahtunut virhe, jota olisit voinut myös selittää jonkun muun syyksi."}, {"text": "Mitä tarkoittaa sinulle olla vahva mies?", "hint": "Esim. kovuus, sisu, tunteiden näyttäminen tai avun pyytäminen."}, {"text": "Mikä on hyödyllisin taito, jonka olet oppinut joltain toiselta mieheltä?", "hint": "Voi olla isä, kaveri tai kuka tahansa mies. Taito voi olla käytännön juttu tai elämänviisaus."}, {"text": "Tekeekö puku miehen, vai työvaatteet?", "hint": "Nyt ei kukaan pelasta sua, vastaa omin sanoin."}, {"text": "Milloin viimeksi autoit kaveria saavuttamaan jotain, joka oli hänelle tärkeää?", "hint": "Voi olla iso apu tai pieni tuki, esim. kannustus tai käytännön apu."}, {"text": "Minkä eläimen haluaisit lemmikiksi, muttet ole koskaan hankkinut?", "hint": "Voi olla esim. koira, kissa, lintu tai vaikka koko maatilan eläimet.", "light": true}, {"text": "Mikä on noloin biisi, jota kuuntelet salaa?", "hint": "Anna tulla vaan.", "light": true}, {"text": "Jos raha ei olisi este, mihin reissuun lähtisit tän porukan kanssa?", "hint": "Nyt voitte varata matkat.", "light": true}, {"text": "Mikä on paras vitsi, jonka muistat juuri nyt?", "hint": "Esim: Miksi sähkömies erosi vaimostaan? Heidän välillään ei ollut enää jännitettä.", "light": true}, {"text": "Mikä ruoka saa sinut aina hyvälle tuulelle?", "hint": "Lapsuuden lempiruoka kelpaa. Villen mielestä liha on aina hyvä vastaus.", "light": true}, {"text": "Mitä harrastusta olet aina halunnut kokeilla, muttet ole vielä kehdannut?", "hint": "Villen mielestä hevoset on kivoja ja ratsastus vois olla mielenkiintoinen siksi.", "light": true}, {"text": "Mitä harrastat, ja mitä se antaa sinulle?", "hint": "Esim. rentoutumista, kavereita, saavutuksen tunnetta tai jotain ihan muuta.", "light": true}, {"text": "Mikä lapsuuden lelu tai peli toisi sinulle eniten iloa juuri nyt?", "hint": "Muistele mikä oli ehdoton suosikki.", "light": true}, {"text": "Mikä oli lapsena unelma-ammattisi, ja mitä sille tapahtui?", "hint": "Muistele mitä unelmoit tekeväsi isona.", "light": true}, {"text": "Mikä on lempivärisi?", "hint": "Haluatko seuraavaksi värikartan?", "light": true}, {"text": "Oletko joskus saanut lempinimen? Mikä se oli?", "hint": "Kyllä vai ei?", "light": true}, {"text": "Mikä on noloin asu, jonka olet joskus pukenut päälle?", "hint": "Bonuspisteitä jos siitä on kuva olemassa.", "light": true}, {"text": "Jos saisit järjestää bileet millä tahansa teemalla, mikä se olisi?", "hint": "Ei tarvitse olla realistinen.", "light": true}, {"text": "Millainen on mielestäsi hyvä ystävä?", "hint": "Esim. rehellisyys, huumorintaju tai luotettavuus.", "light": true}, {"text": "Jos saisit yhtäkkiä todella paljon rahaa, mitä tekisit sillä?", "hint": "Esim. matka, oma talo, läheisten auttaminen, yrityksen perustaminen tai jokin täysin hullu hankinta.", "light": true}, {"text": "Mikä on ensimmäinen asia, jonka teet herättyäsi?", "hint": "Esim. katsot puhelinta, venyttelet tai teet kahvia.", "light": true}, {"text": "Mitä eroa on ystävällä ja kaverilla?", "hint": "Mieti omin sanoin.", "light": true}, {"text": "Mitä ostaisit deiteille, jos raha ei olisi ongelma?", "hint": "Voi olla matka, illallinen tai jokin täysin hullu yllätys.", "light": true}, {"text": "Kenet tästä porukasta laittaisit Big Brotheriin, ja miksi?", "hint": "Mieti kuka aiheuttaisi eniten draamaa tai olisi hauskin katsoa.", "light": true}, {"text": "Jos perustaisit yrityksen tän porukan kanssa, kenet palkkaisit ekana ja kuka saisi potkut ekana?", "hint": "Esim. kuka olisi pomo, kuka tekisi eniten töitä, kuka aiheuttaisi eniten kaaosta.", "light": true}, {"text": "Mikä on tyhmin ostos, jonka olet joskus tehnyt?", "hint": "Esim. jokin hetken mielijohteesta ostettu juttu, jota et enää käytä.", "light": true}, {"text": "Kenet tästä pöydästä haastaisit nyrkkeilykehään?", "hint": "Jos oikeasti tapahtuu, muistakaa ainakin kuvata ja laittaa video someen.", "light": true}, {"text": "Jos some olisi grillijono, olisiko sinulla silmä mustana?", "hint": "Ei lisättävää.", "light": true}, {"text": "Kumpaa kosketat enemmän, puolisoasi vai pleikkaria?", "hint": "", "light": true}];
+
+  function shuffle(array) {
+    const copy = array.slice();
+    for (let i = copy.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [copy[i], copy[j]] = [copy[j], copy[i]];
+    }
+    return copy;
+  }
+
+  function shuffleWithPacing(questions) {
+    const light = shuffle(questions.filter((q) => q.light));
+    const deep = shuffle(questions.filter((q) => !q.light && !q.intense));
+    const intense = shuffle(questions.filter((q) => q.intense));
+    const result = [];
+    let li = 0;
+    let di = 0;
+
+    while (li < light.length || di < deep.length) {
+      const lightProgress = light.length ? li / light.length : 1;
+      const deepProgress = deep.length ? di / deep.length : 1;
+
+      if (li < light.length && (di >= deep.length || lightProgress <= deepProgress)) {
+        result.push(light[li]);
+        li += 1;
+      } else {
+        result.push(deep[di]);
+        di += 1;
+      }
+    }
+
+    const MIN_INTENSE_GAP = 10;
+    const usedIndexes = [];
+
+    intense.forEach((question) => {
+      const minIndex = Math.min(49, result.length);
+      const maxIndex = Math.min(99, result.length);
+      let insertIndex;
+      let attempts = 0;
+
+      do {
+        insertIndex = minIndex + Math.floor(Math.random() * (maxIndex - minIndex + 1));
+        attempts += 1;
+      } while (
+        attempts < 20 &&
+        usedIndexes.some((used) => Math.abs(used - insertIndex) < MIN_INTENSE_GAP)
+      );
+
+      result.splice(insertIndex, 0, question);
+      usedIndexes.push(insertIndex);
+    });
+
+    return result;
+  }
+
+  let players = ['', ''];
+  let randomTurnEnabled = true;
+  let shuffledQuestions = [];
+  let cardIndex = 0;
+  let currentPlayer = '';
+  let hintVisible = false;
+
+  const stages = {};
+  document.querySelectorAll('.stage').forEach((el) => { stages[el.id] = el; });
+  function showStage(id) {
+    Object.values(stages).forEach((el) => el.classList.remove('active'));
+    stages[id].classList.add('active');
+    document.body.classList.toggle('on-start', id === 'stage-start');
+  }
+
+  function getValidPlayers() {
+    return players.map((p) => p.trim()).filter((p) => p.length > 0);
+  }
+
+  function renderPlayerRows() {
+    const container = document.getElementById('player-rows');
+    container.innerHTML = '';
+    players.forEach((name, index) => {
+      const row = document.createElement('div');
+      row.className = 'player-row';
+
+      const input = document.createElement('input');
+      input.className = 'player-input';
+      input.placeholder = 'Pelaaja ' + (index + 1);
+      input.value = name;
+      input.addEventListener('input', (e) => {
+        players[index] = e.target.value;
+      });
+      row.appendChild(input);
+
+      if (players.length > 2) {
+        const removeBtn = document.createElement('button');
+        removeBtn.className = 'remove-player';
+        removeBtn.textContent = '\u2715';
+        removeBtn.addEventListener('click', () => {
+          players.splice(index, 1);
+          renderPlayerRows();
+        });
+        row.appendChild(removeBtn);
+      }
+
+      container.appendChild(row);
+    });
+  }
+
+  document.getElementById('add-player').addEventListener('click', () => {
+    players.push('');
+    renderPlayerRows();
+  });
+
+  document.getElementById('rules-toggle').addEventListener('click', () => {
+    const rulesText = document.getElementById('rules-text');
+    const visible = rulesText.style.display !== 'none';
+    rulesText.style.display = visible ? 'none' : 'block';
+    document.getElementById('rules-toggle').textContent = visible ? 'Säännöt' : 'Piilota säännöt';
+  });
+
+  document.getElementById('random-toggle').addEventListener('click', () => {
+    randomTurnEnabled = !randomTurnEnabled;
+    document.getElementById('random-toggle').textContent =
+      'Arvonta: ' + (randomTurnEnabled ? 'päällä' : 'pois') + ' (koske vaihtaaksesi)';
+  });
+
+  document.getElementById('start-btn').addEventListener('click', () => {
+    const valid = getValidPlayers();
+    if (valid.length < 2) {
+      document.getElementById('start-hint').style.display = 'block';
+      return;
+    }
+    document.getElementById('start-hint').style.display = 'none';
+    shuffledQuestions = shuffleWithPacing(QUESTIONS);
+    cardIndex = 0;
+    showStage('stage-intro');
+  });
+
+  document.getElementById('intro-continue').addEventListener('click', () => {
+    if (randomTurnEnabled) {
+      spinBottle();
+    } else {
+      showStage('stage-card');
+      renderCard();
+    }
+  });
+
+  function spinBottle() {
+    showStage('stage-spin');
+    const pool = getValidPlayers();
+    const totalTicks = 22;
+    let tick = 0;
+    const nameEl = document.getElementById('spinning-name');
+
+    function doTick() {
+      nameEl.textContent = pool[Math.floor(Math.random() * pool.length)];
+      tick += 1;
+
+      if (tick >= totalTicks) {
+        const finalName = pool[Math.floor(Math.random() * pool.length)];
+        currentPlayer = finalName;
+        nameEl.textContent = finalName;
+        setTimeout(() => {
+          showStage('stage-card');
+          renderCard();
+        }, 700);
+        return;
+      }
+
+      const progress = tick / totalTicks;
+      const delay = 80 + progress * 180;
+      setTimeout(doTick, delay);
+    }
+
+    doTick();
+  }
+
+  function renderCard() {
+    hintVisible = false;
+    const q = shuffledQuestions[cardIndex];
+    document.getElementById('card-text').textContent = q.text;
+
+    const hintToggle = document.getElementById('hint-toggle');
+    const helperHint = document.getElementById('helper-hint');
+    if (q.hint) {
+      hintToggle.style.display = 'inline-block';
+      hintToggle.textContent = 'Näytä vinkki';
+      helperHint.style.display = 'none';
+    } else {
+      hintToggle.style.display = 'none';
+      helperHint.style.display = 'none';
+    }
+
+    const playerLabel = document.getElementById('current-player-label');
+    if (randomTurnEnabled) {
+      playerLabel.style.display = 'block';
+      playerLabel.textContent = 'Vuorossa: ' + currentPlayer;
+    } else {
+      playerLabel.style.display = 'none';
+    }
+
+    document.getElementById('arrow-left').style.display = cardIndex > 0 ? 'flex' : 'none';
+  }
+
+  document.getElementById('hint-toggle').addEventListener('click', () => {
+    hintVisible = true;
+    document.getElementById('hint-toggle').style.display = 'none';
+    const helperHint = document.getElementById('helper-hint');
+    helperHint.textContent = shuffledQuestions[cardIndex].hint;
+    helperHint.style.display = 'block';
+  });
+
+  function nextCard() {
+    if (cardIndex + 1 < shuffledQuestions.length) {
+      cardIndex += 1;
+      if (randomTurnEnabled) {
+        spinBottle();
+      } else {
+        renderCard();
+      }
+    } else {
+      showStage('stage-end');
+    }
+  }
+
+  function previousCard() {
+    if (cardIndex > 0) {
+      cardIndex -= 1;
+      renderCard();
+    }
+  }
+
+  document.getElementById('tap-right').addEventListener('click', nextCard);
+  document.getElementById('tap-left').addEventListener('click', previousCard);
+  document.getElementById('btn-skip').addEventListener('click', nextCard);
+  document.getElementById('btn-stop').addEventListener('click', () => showStage('stage-end'));
+  document.getElementById('btn-home').addEventListener('click', () => showStage('stage-start'));
+
+  document.getElementById('replay-btn').addEventListener('click', () => {
+    showStage('stage-start');
+  });
+
+  document.body.classList.add('on-start');
+  renderPlayerRows();
+</script>

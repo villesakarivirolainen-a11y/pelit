@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8" />
+<title>Villen Pelit</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&display=swap">
+
+<style>
+  :root {
+    --bg: #0A0A0A;
+    --card-bg: #161616;
+    --card-border: #33363A;
+    --text: #F5F5F5;
+    --text-secondary: #9A9A9A;
+    --gold: #C9A257;
+    --gold-deep: #9C8142;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Oswald', -apple-system, sans-serif;
+    font-weight: 400;
+  }
+
+  .hero {
+    position: relative;
+    min-height: min(78vh, 640px);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    text-align: center;
+    padding: 0 22px 40px;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url('hero.jpg') center top / cover no-repeat;
+    opacity: 0.6;
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, rgba(10,10,10,0) 30%, rgba(10,10,10,0.75) 70%, var(--bg) 100%);
+  }
+
+  .hero-text {
+    position: relative;
+    z-index: 1;
+    max-width: 480px;
+  }
+
+  .eyebrow {
+    font-size: 12px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin: 0 0 10px;
+  }
+
+  h1 {
+    font-size: 44px;
+    font-weight: 700;
+    line-height: 1.05;
+    margin: 0 0 14px;
+  }
+
+  .lead {
+    font-size: 17px;
+    line-height: 1.5;
+    color: var(--text-secondary);
+    margin: 0;
+  }
+
+  main {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 10px 22px 50px;
+  }
+
+  .section-label {
+    font-size: 13px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    margin: 0 0 14px;
+  }
+
+  .game {
+    display: block;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 14px;
+    padding: 22px 20px;
+    margin-bottom: 14px;
+    color: inherit;
+    text-decoration: none;
+    transition: border-color 0.2s ease, transform 0.2s ease;
+  }
+
+  a.game:hover, a.game:focus-visible {
+    border-color: var(--gold-deep);
+    transform: translateY(-2px);
+  }
+
+  .game-tag {
+    display: inline-block;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--gold);
+    border: 1px solid var(--gold-deep);
+    border-radius: 999px;
+    padding: 3px 10px;
+    margin-bottom: 12px;
+  }
+
+  .game h2 {
+    font-size: 26px;
+    font-weight: 600;
+    margin: 0 0 6px;
+  }
+
+  .game p {
+    font-size: 15px;
+    line-height: 1.5;
+    color: var(--text-secondary);
+    margin: 0 0 14px;
+  }
+
+  .game .cta {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--gold);
+  }
+
+  .game.soon {
+    opacity: 0.55;
+  }
+
+  .game.soon .game-tag {
+    color: var(--text-secondary);
+    border-color: var(--card-border);
+  }
+
+  .ig {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin: 34px 0 0;
+    padding: 16px;
+    border: 1px solid var(--gold-deep);
+    border-radius: 14px;
+    color: var(--gold);
+    text-decoration: none;
+    font-size: 17px;
+    font-weight: 600;
+  }
+
+  .ig svg { width: 20px; height: 20px; }
+
+  .ig:hover { background: rgba(201,162,87,0.08); }
+
+  footer {
+    text-align: center;
+    font-size: 12px;
+    color: var(--text-secondary);
+    opacity: 0.6;
+    margin-top: 30px;
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-text">
+    <p class="eyebrow">Ville Virolainen</p>
+    <h1>Pelit, jotka saa puhumaan</h1>
+    <p class="lead">Korttipelejä ja kysymyksiä, joiden jälkeen tuntee porukan vähän paremmin. Valitse peli ja aloita.</p>
+  </div>
+</header>
+
+<main>
+  <p class="section-label">Pelaa nyt</p>
+
+  <a class="game" href="jatkien-ilta/">
+    <span class="game-tag">Korttipeli miehille</span>
+    <h2>Jätkien Ilta</h2>
+    <p>Syviä, kevyitä ja hauskoja kysymyksiä porukalle. Vähän enemmän kuin peli.</p>
+    <span class="cta">Pelaa →</span>
+  </a>
+
+  <a class="ig" href="https://www.instagram.com/se.ville.virolainen/" target="_blank" rel="noopener">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>
+    Seuraa: @se.ville.virolainen
+  </a>
+
+  <footer>© Ville Virolainen</footer>
+</main>
+
+</body>
+</html>
